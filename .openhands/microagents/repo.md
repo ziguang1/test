@@ -42,6 +42,3 @@ Based on the repository content, this appears to be:
 
 ## Note
 This microagent doesn't have any triggers configured.
-
-## Note
-This microagent doesn't have any triggers configured.
