@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贪吃蛇游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            padding: 20px;
+        }
+        
+        .game-container {
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            color: #00ff88;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+        
+        .score-container, .high-score-container {
+            font-size: 1.2em;
+        }
+        
+        .score-label, .high-score-label {
+            color: #aaa;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        
+        .score-value, .high-score-value {
+            color: #00ff88;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .game-board {
+            position: relative;
+            margin: 0 auto 20px;
+            border: 3px solid #00ff88;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+        
+        canvas {
+            display: block;
+            background-color: #0f3460;
+        }
+        
+        .controls {
+            margin-bottom: 20px;
+        }
+        
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 12px 25px;
+            font-size: 1em;
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            color: #000;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 255, 136, 0.5);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button#pauseBtn {
+            background: linear-gradient(45deg, #ffaa00, #ff8800);
+            box-shadow: 0 5px 15px rgba(255, 170, 0, 0.3);
+        }
+        
+        button#pauseBtn:hover {
+            box-shadow: 0 8px 20px rgba(255, 170, 0, 0.5);
+        }
+        
+        button#restartBtn {
+            background: linear-gradient(45deg, #ff4444, #cc0000);
+            box-shadow: 0 5px 15px rgba(255, 68, 68, 0.3);
+        }
+        
+        button#restartBtn:hover {
+            box-shadow: 0 8px 20px rgba(255, 68, 68, 0.5);
+        }
+        
+        .instructions {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        .instructions h3 {
+            color: #00ff88;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            color: #ccc;
+        }
+        
+        .instructions li strong {
+            color: #00ff88;
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+            z-index: 10;
+            border: 2px solid #ff4444;
+            box-shadow: 0 0 30px rgba(255, 68, 68, 0.5);
+        }
+        
+        .game-over h2 {
+            color: #ff4444;
+            margin-bottom: 15px;
+            font-size: 2em;
+        }
+        
+        .game-over p {
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+        
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .control-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🐍 贪吃蛇游戏</h1>
+        
+        <div class="game-info">
+            <div class="score-container">
+                <div class="score-label">当前分数</div>
+                <div class="score-value" id="score">0</div>
+            </div>
+            <div class="high-score-container">
+                <div class="high-score-label">最高分</div>
+                <div class="high-score-value" id="highScore">0</div>
+            </div>
+        </div>
+        
+        <div class="game-board">
+            <canvas id="gameCanvas" width="600" height="400"></canvas>
+            <div class="game-over" id="gameOverScreen">
+                <h2>游戏结束!</h2>
+                <p>最终分数: <span id="finalScore">0</span></p>
+                <button id="playAgainBtn">再玩一次</button>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-buttons">
+                <button id="startBtn">开始游戏</button>
+                <button id="pauseBtn">暂停游戏</button>
+                <button id="restartBtn">重新开始</button>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>游戏说明</h3>
+            <ul>
+                <li>使用 <strong>方向键 (↑ ↓ ← →)</strong> 或 <strong>WASD 键</strong> 控制蛇的移动方向</li>
+                <li>吃到 <strong style="color: #ff4444;">红色食物</strong> 可以增加分数和蛇的长度</li>
+                <li>撞到墙壁或自己的身体会导致游戏结束</li>
+                <li>游戏目标：获得尽可能高的分数！</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="snake-game.js"></script>
+</body>
+</html>
